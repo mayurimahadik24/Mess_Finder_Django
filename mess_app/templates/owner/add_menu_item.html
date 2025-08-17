@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Menu Item</title>
+</head>
+<body>
+    <h1>Add Menu Item for {{ mess.name }}</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+    <br>
+    <a href="{% url 'owner_dashboard' %}">⬅ Back to Dashboard</a>
+</body>
+</html>

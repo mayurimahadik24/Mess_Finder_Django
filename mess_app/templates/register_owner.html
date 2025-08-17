@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Owner Registration</title>
+</head>
+<body>
+    <h2>Register as Owner</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color:red">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <label>Username:</label><br>
+        <input type="text" name="username" required><br>
+
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br>
+
+        <label>Mess Name:</label><br>
+        <input type="text" name="mess_name" required><br>
+
+        <label>Location:</label><br>
+        <input type="text" name="location" required><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password1" required><br>
+
+        <label>Confirm Password:</label><br>
+        <input type="password" name="password2" required><br>
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
