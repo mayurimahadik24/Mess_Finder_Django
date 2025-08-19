@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - Mess Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center items-center p-6">
+    <div class="bg-white shadow-2xl rounded-2xl w-full max-w-4xl p-8 grid md:grid-cols-2 gap-8">
+        
+        <!-- Checkout Form -->
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Checkout</h2>
+            
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" name="name" required
+                           class="w-full mt-2 p-3 border rounded-lg focus:ring focus:ring-blue-200">
+                </div>
+
+                <!-- Address -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                    <textarea name="address" rows="3" required
+                              class="w-full mt-2 p-3 border rounded-lg focus:ring focus:ring-blue-200"></textarea>
+                </div>
+
+                <!-- Pincode -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Pincode</label>
+                    <input type="text" name="pincode" required
+                           class="w-full mt-2 p-3 border rounded-lg focus:ring focus:ring-blue-200">
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Payment Method</label>
+                    <select name="payment_method" required
+                            class="w-full mt-2 p-3 border rounded-lg focus:ring focus:ring-blue-200">
+                        <option value="COD">Cash on Delivery</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Card">Credit/Debit Card</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
+                    Place Order
+                </button>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="bg-gray-50 rounded-xl p-6 border">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Order Summary</h3>
+            
+            {% if cart_items %}
+                <ul class="space-y-3">
+                    {% for item in cart_items %}
+                        <li class="flex justify-between border-b pb-2">
+                            <span>{{ item.food_item.name }}</span>
+                            <span>₹{{ item.food_item.price }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="flex justify-between mt-6 text-lg font-bold text-gray-900">
+                    <span>Total:</span>
+                    <span>
+                        ₹{{ cart_items|map:"food_item.price"|sum }}
+                    </span>
+                </div>
+            {% else %}
+                <p class="text-gray-600">Your cart is empty.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -11,7 +11,7 @@ class MessForm(forms.ModelForm):
 
     class Meta:
         model = Mess
-        fields = ['name', 'location', 'pincode', 'contact', 'food_type', 'price', 'description']
+        fields = ['name', 'location','address', 'pincode','photo', 'contact', 'food_type', 'price', 'description']
 
     def clean_price(self):
         price = self.cleaned_data.get('price')
