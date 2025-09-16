@@ -1,29 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>User Profile</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Mess Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex justify-center items-center h-screen">
-  <div class="bg-white p-8 rounded-2xl shadow-lg w-96">
-    <h1 class="text-2xl font-bold text-center mb-6">👤 User Profile</h1>
+<body class="bg-gray-100 font-sans">
 
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>First Name:</strong> {{ user.first_name }}</p>
-    <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
+        <h1 class="text-xl font-bold">🍴 Mess Finder - My Profile</h1>
+        <div class="flex space-x-4">
+            <a href="{% url 'home' %}" class="px-4 py-2 bg-green-500 rounded hover:bg-green-600">Home</a>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 bg-red-600 rounded hover:bg-red-700">Logout</button>
+            </form>
+        </div>
+    </nav>
 
-    <div class="mt-6 text-center">
-      <form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit" 
-        class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">
-        🚪 Logout
-    </button>
-</form>
+    <div class="container mx-auto px-4 py-6">
+        <h2 class="text-3xl font-bold mb-4">👤 Welcome, {{ user.username }}</h2>
 
+        <!-- Current Orders -->
+        <div class="mb-8">
+            <h3 class="text-2xl font-semibold mb-4">📦 Current Orders</h3>
+            {% if current_orders %}
+            <div class="overflow-x-auto">
+                <table class="w-full border border-gray-300 rounded-lg shadow">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="border px-4 py-2">Order ID</th>
+                            <th class="border px-4 py-2">Mess Name</th>
+                            <th class="border px-4 py-2">Items</th>
+                            <th class="border px-4 py-2">Total Price</th>
+                            <th class="border px-4 py-2">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in current_orders %}
+                        <tr class="hover:bg-gray-100">
+                            <td class="border px-4 py-2">{{ order.id }}</td>
+                            <td class="border px-4 py-2">{{ order.mess.name }}</td>
+                            <td class="border px-4 py-2">
+                                <ul class="list-disc pl-5">
+                                    {% for item in order.items.all %}
+                                        <li>{{ item.name }} (₹{{ item.price }})</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td class="border px-4 py-2 font-semibold">₹{{ order.total_price }}</td>
+                            <td class="border px-4 py-2">
+                                <span class="
+                                    {% if order.status == 'Pending' %} text-yellow-600 
+                                    {% elif order.status == 'Accepted' %} text-green-600 
+                                    {% elif order.status == 'Rejected' %} text-red-600 
+                                    {% elif order.status == 'Delivered' %} text-blue-600 {% endif %}
+                                ">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-500">You have no current orders.</p>
+            {% endif %}
+        </div>
+
+        <!-- Order History -->
+        <div>
+            <h3 class="text-2xl font-semibold mb-4">📜 Order History</h3>
+            {% if past_orders %}
+            <div class="overflow-x-auto">
+                <table class="w-full border border-gray-300 rounded-lg shadow">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="border px-4 py-2">Order ID</th>
+                            <th class="border px-4 py-2">Mess Name</th>
+                            <th class="border px-4 py-2">Items</th>
+                            <th class="border px-4 py-2">Total Price</th>
+                            <th class="border px-4 py-2">Status</th>
+                            <th class="border px-4 py-2">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in past_orders %}
+                        <tr class="hover:bg-gray-100">
+                            <td class="border px-4 py-2">{{ order.id }}</td>
+                            <td class="border px-4 py-2">{{ order.mess.name }}</td>
+                            <td class="border px-4 py-2">
+                                <ul class="list-disc pl-5">
+                                    {% for item in order.items.all %}
+                                        <li>{{ item.name }} (₹{{ item.price }})</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td class="border px-4 py-2 font-semibold">₹{{ order.total_price }}</td>
+                            <td class="border px-4 py-2">{{ order.status }}</td>
+                            <td class="border px-4 py-2">
+                                <form method="POST" action="{% url 'delete_order_history' order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-500">You have no past orders.</p>
+            {% endif %}
+        </div>
     </div>
-  </div>
+
 </body>
 </html>

@@ -6,132 +6,228 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
-
-    
-    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-blue-600">Mess Finder</h1>
-       
-        <div class="relative">
-            <button id="profileBtn" class="flex items-center space-x-2 focus:outline-none">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-                     alt="User" class="w-10 h-10 rounded-full border">
-            </button>
-
-            <div id="profileMenu" 
-                 class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                <a href="{% url 'user_profile' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">👤 Profile</a>
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" 
-                        class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">
-                        🚪 Logout
-                    </button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    
-    <div class="p-6">
-        <h1 class="text-3xl font-bold text-center mb-8">All Messes & Menus</h1>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for mess in messes %}
-            <div class="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition">
-                
-                <div class="p-4">
-                    <h2 class="text-xl font-bold text-blue-700">{{ mess.name }}</h2>
-                    <p class="text-gray-600">{{ mess.address }}, {{ mess.location }} - {{ mess.pincode }}</p>
-                    <p class="text-gray-500">📞 {{ mess.contact }}</p>
-                    <p class="text-gray-500">🍴 {{ mess.food_type }}</p>
-                    <p class="text-sm text-gray-600 mt-2">{{ mess.description }}</p>
-                </div>
-
-               
-                <div class="border-t px-4 py-3 bg-gray-50">
-                    <h3 class="font-semibold text-lg mb-2">Menu:</h3>
-                    <ul class="space-y-2">
-                        {% for item in mess.menuitem_set.all %}
-                        <li class="flex items-center space-x-3 border p-2 rounded-lg hover:bg-gray-100">
-                            {% if item.photo %}
-                                <img src="{{ item.photo.url }}" alt="{{ item.name }}" class="w-12 h-12 rounded-lg object-cover">
-                            {% endif %}
-                            <div class="flex-1">
-                                <p class="font-medium">{{ item.name }}</p>
-                                <p class="text-sm text-gray-600">{{ item.description }}</p>
-                                <p class="text-green-600 font-semibold">₹{{ item.price }}</p>
-                            </div>
-                            <
-                            <button onclick="addToCart('{{ mess.id }}','{{ item.id }}','{{ item.name }}','{{ item.price }}')"
-                                class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">
-                                Add
-                            </button>
-                        </li>
-                        {% empty %}
-                        <p class="text-gray-400">No menu items available</p>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            {% endfor %}
+<nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-blue-600">Mess Finder</h1>
+    <div class="relative">
+        <button id="profileBtn" class="flex items-center space-x-2 focus:outline-none">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-10 h-10 rounded-full border">
+        </button>
+        <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+            <a href="{% url 'user_profile' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">👤 Profile</a>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">🚪 Logout</button>
+            </form>
         </div>
     </div>
+</nav>
 
-    
-    <div class="fixed bottom-5 right-5 w-80 bg-white shadow-xl rounded-2xl p-4">
-        <h2 class="text-xl font-bold text-blue-600 mb-3">🛒 Your Cart</h2>
-        <ul id="cartItems" class="space-y-2"></ul>
-        <p class="mt-2 font-semibold">Total: ₹<span id="cartTotal">0</span></p>
+<div class="p-6">
+    <h1 class="text-3xl font-bold text-center mb-8">All Messes & Menus</h1>
 
-        <form method="post" action="{% url 'checkout' %}">
-            {% csrf_token %}
-            <input type="hidden" name="cart_data" id="cartData">
-            <button type="submit" 
-                class="mt-3 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
-                Checkout
-            </button>
+    <form method="get" class="mb-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+        <input type="text" name="location" placeholder="Location" value="{{ request.GET.location }}" class="border rounded-lg p-2">
+        <input type="text" name="pincode" placeholder="Pincode" value="{{ request.GET.pincode }}" class="border rounded-lg p-2">
+        <select name="food_type" class="border rounded-lg p-2">
+            <option value="">All Types</option>
+            <option value="Veg" {% if request.GET.food_type == 'Veg' %}selected{% endif %}>Veg</option>
+            <option value="Non-Veg" {% if request.GET.food_type == 'Non-Veg' %}selected{% endif %}>Non-Veg</option>
+        </select>
+        <input type="number" name="price" placeholder="Max Price" value="{{ request.GET.price }}" class="border rounded-lg p-2">
+        <input type="text" name="menu" placeholder="Menu Search" value="{{ request.GET.menu }}" class="border rounded-lg p-2">
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Filter</button>
+    </form>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for mess in messes %}
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition">
+            <div class="p-4">
+                <h2 class="text-xl font-bold text-blue-700">{{ mess.name }}</h2>
+                <p class="text-gray-600">{{ mess.address }}, {{ mess.location }} - {{ mess.pincode }}</p>
+                <p class="text-gray-500">📞 {{ mess.contact }}</p>
+                <p class="text-gray-500">🍴 {{ mess.food_type }}</p>
+                <p class="text-sm text-gray-600 mt-2">{{ mess.description }}</p>
+            </div>
+            <div class="border-t px-4 py-3 bg-gray-50">
+                <h3 class="font-semibold text-lg mb-2">Menu:</h3>
+                <ul class="space-y-2">
+                    {% for item in mess.menuitem_set.all %}
+                    <li class="flex items-center space-x-3 border p-2 rounded-lg hover:bg-gray-100">
+                        {% if item.photo %}
+                            <img src="{{ item.photo.url }}" class="w-12 h-12 rounded-lg object-cover">
+                        {% endif %}
+                        <div class="flex-1">
+                            <p class="font-medium">{{ item.name }}</p>
+                            <p class="text-sm text-gray-600">{{ item.description }}</p>
+                            <p class="text-green-600 font-semibold">₹{{ item.price }}</p>
+                        </div>
+                        <button onclick="addToCart('{{ item.id }}')" class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">Add</button>
+                    </li>
+                    {% empty %}
+                    <p class="text-gray-400">No menu items available</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="fixed bottom-5 right-5 w-80 bg-white shadow-xl rounded-2xl p-4">
+    <h2 class="text-xl font-bold text-blue-600 mb-3">🛒 Your Cart</h2>
+    <p class="font-medium">Items in cart: <span id="cartCount">{{ cart_count }}</span></p>
+    <p class="mt-2 font-semibold">Total: ₹<span id="cartTotal">{{ cart_total }}</span></p>
+    <a href="{% url 'cart' %}" class="mt-3 w-full inline-block text-center bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">View Cart</a>
+</div>
+
+<script>
+    const profileBtn = document.getElementById("profileBtn");
+    const profileMenu = document.getElementById("profileMenu");
+    profileBtn.addEventListener("click", () => profileMenu.classList.toggle("hidden"));
+    window.addEventListener("click", (e) => { if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) profileMenu.classList.add("hidden"); });
+
+    function addToCart(itemId) {
+        fetch(`/add-to-cart/${itemId}/`, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(res => res.json())
+        .then(data => { alert(data.message); updateCartSummary(); });
+    }
+    function updateCartSummary() {
+        fetch('/cart-summary/', { method: 'GET' })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('cartCount').innerText = data.count;
+            document.getElementById('cartTotal').innerText = data.total;
+        });
+    }
+</script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mess & Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+<nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-blue-600">Mess Finder</h1>
+    <div class="relative">
+        <button id="profileBtn" class="flex items-center space-x-2 focus:outline-none">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-10 h-10 rounded-full border">
+        </button>
+        <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+            <a href="{% url 'user_profile' %}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">👤 Profile</a>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">🚪 Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="p-6">
+    <h1 class="text-3xl font-bold text-center mb-6">All Messes & Menus</h1>
+
+    <!-- Filter Dropdown -->
+    <div class="mb-6 relative">
+        <button id="filterBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Filter Messes ▼</button>
+        <form id="filterForm" method="get" class="hidden absolute left-0 mt-2 w-full md:w-auto bg-white shadow-lg rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4 z-50">
+            <input type="text" name="location" placeholder="Location" value="{{ request.GET.location }}" class="border rounded-lg p-2">
+            <input type="text" name="pincode" placeholder="Pincode" value="{{ request.GET.pincode }}" class="border rounded-lg p-2">
+            <select name="food_type" class="border rounded-lg p-2">
+                <option value="">All Types</option>
+                <option value="Veg" {% if request.GET.food_type == 'Veg' %}selected{% endif %}>Veg</option>
+                <option value="Non-Veg" {% if request.GET.food_type == 'Non-Veg' %}selected{% endif %}>Non-Veg</option>
+            </select>
+            <input type="number" name="price" placeholder="Max Price" value="{{ request.GET.price }}" class="border rounded-lg p-2">
+            <input type="text" name="menu" placeholder="Menu Search" value="{{ request.GET.menu }}" class="border rounded-lg p-2">
+            
+            <div class="flex space-x-2 md:col-span-2">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Apply</button>
+                <button type="button" id="clearFilters" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Clear</button>
+            </div>
         </form>
     </div>
 
-    
-    <script>
-        const profileBtn = document.getElementById("profileBtn");
-        const profileMenu = document.getElementById("profileMenu");
-        profileBtn.addEventListener("click", () => {
-            profileMenu.classList.toggle("hidden");
-        });
-        window.addEventListener("click", (e) => {
-            if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
-                profileMenu.classList.add("hidden");
-            }
-        });
-
-        let cart = [];
-        function addToCart(messId, itemId, name, price) {
-            cart.push({messId, itemId, name, price: parseFloat(price)});
-            renderCart();
-        }
-        function renderCart() {
-            const cartList = document.getElementById("cartItems");
-            cartList.innerHTML = "";
-            let total = 0;
-            cart.forEach((item, index) => {
-                total += item.price;
-                cartList.innerHTML += `
-                    <li class="flex justify-between items-center border p-2 rounded-lg">
-                        <span>${item.name} - ₹${item.price}</span>
-                        <button onclick="removeFromCart(${index})" class="text-red-500">✖</button>
+    <!-- Mess List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for mess in messes %}
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition">
+            <div class="p-4">
+                <h2 class="text-xl font-bold text-blue-700">{{ mess.name }}</h2>
+                <p class="text-gray-600">{{ mess.address }}, {{ mess.location }} - {{ mess.pincode }}</p>
+                <p class="text-gray-500">📞 {{ mess.contact }}</p>
+                <p class="text-gray-500">🍴 {{ mess.food_type }}</p>
+                <p class="text-sm text-gray-600 mt-2">{{ mess.description }}</p>
+            </div>
+            <div class="border-t px-4 py-3 bg-gray-50">
+                <h3 class="font-semibold text-lg mb-2">Menu:</h3>
+                <ul class="space-y-2">
+                    {% for item in mess.menuitem_set.all %}
+                    <li class="flex items-center space-x-3 border p-2 rounded-lg hover:bg-gray-100">
+                        {% if item.photo %}
+                            <img src="{{ item.photo.url }}" class="w-12 h-12 rounded-lg object-cover">
+                        {% endif %}
+                        <div class="flex-1">
+                            <p class="font-medium">{{ item.name }}</p>
+                            <p class="text-sm text-gray-600">{{ item.description }}</p>
+                            <p class="text-green-600 font-semibold">₹{{ item.price }}</p>
+                        </div>
+                        <button onclick="addToCart('{{ item.id }}')" class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">Add</button>
                     </li>
-                `;
-            });
-            document.getElementById("cartTotal").innerText = total.toFixed(2);
-            document.getElementById("cartData").value = JSON.stringify(cart);
-        }
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            renderCart();
-        }
-    </script>
+                    {% empty %}
+                    <p class="text-gray-400">No menu items available</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
+<div class="fixed bottom-5 right-5 w-80 bg-white shadow-xl rounded-2xl p-4">
+    <h2 class="text-xl font-bold text-blue-600 mb-3">🛒 Your Cart</h2>
+    <p class="font-medium">Items in cart: <span id="cartCount">{{ cart_count }}</span></p>
+    <p class="mt-2 font-semibold">Total: ₹<span id="cartTotal">{{ cart_total }}</span></p>
+    <a href="{% url 'cart' %}" class="mt-3 w-full inline-block text-center bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">View Cart</a>
+</div>
+
+<script>
+    // Profile dropdown
+    const profileBtn = document.getElementById("profileBtn");
+    const profileMenu = document.getElementById("profileMenu");
+    profileBtn.addEventListener("click", () => profileMenu.classList.toggle("hidden"));
+    window.addEventListener("click", (e) => { 
+        if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) profileMenu.classList.add("hidden"); 
+    });
+
+    // Filter dropdown
+    const filterBtn = document.getElementById("filterBtn");
+    const filterForm = document.getElementById("filterForm");
+    filterBtn.addEventListener("click", () => filterForm.classList.toggle("hidden"));
+
+    // Clear Filters
+    document.getElementById('clearFilters').addEventListener('click', () => {
+        filterForm.querySelectorAll('input, select').forEach(el => el.value = '');
+        filterForm.submit();
+    });
+
+    // Add to Cart
+    function addToCart(itemId) {
+        fetch(`/add-to-cart/${itemId}/`, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(res => res.json())
+        .then(data => { alert(data.message); updateCartSummary(); });
+    }
+    function updateCartSummary() {
+        fetch('/cart-summary/', { method: 'GET' })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('cartCount').innerText = data.count;
+            document.getElementById('cartTotal').innerText = data.total;
+        });
+    }
+</script>
 </body>
-</html> -->
+</html>

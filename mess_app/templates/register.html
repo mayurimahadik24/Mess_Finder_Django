@@ -7,7 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-r from-green-100 via-blue-100 to-purple-100 min-h-screen flex items-center justify-center">
-
+ <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center fixed w-full top-0 left-0 z-50">
+        <a href="{% url 'home' %}" class="flex items-center space-x-2">
+            <h1 class="text-2xl font-bold text-blue-600 hover:text-blue-800">Mess Finder</h1>
+        </a>
+    </nav>
     <div class="bg-white shadow-lg rounded-lg w-full max-w-md p-8">
         <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</h2>
 

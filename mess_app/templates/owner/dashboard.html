@@ -1,108 +1,150 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Owner Dashboard - Mess Finder</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function toggleAddMess() {
+            const formSection = document.getElementById("add-mess-section");
+            formSection.classList.toggle("hidden");
+        }
+    </script>
 </head>
 <body class="bg-gray-100 font-sans">
 
-    <!-- Navbar -->
-    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
-        <h1 class="text-xl font-bold">🍴 Mess Finder - Owner Dashboard</h1>
-       <form method="POST" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded">
-        Logout
-    </button>
-</form>
+<div class="flex min-h-screen">
+    <aside class="w-64 bg-blue-700 text-white p-6 flex flex-col space-y-4 shadow-lg">
+        <h1 class="text-2xl font-bold mb-6">🍴 Mess Finder</h1>
 
-    </nav>
+        <a href="{% url 'home' %}" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg shadow text-center">
+    🏠 Home
+</a>
 
-    <div class="max-w-6xl mx-auto p-6">
-        <!-- Welcome Message -->
-        <h2 class="text-2xl font-semibold mb-6">Welcome, {{ owner.user.username }} 👋</h2>
 
-        <!-- Flash Messages -->
+        <a href="{% url 'owner_dashboard' %}" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg shadow text-center">
+            📊 Dashboard
+        </a>
+
+        <a href="{% url 'owner_orders' %}" class="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg shadow text-center">
+            📦 My Orders
+        </a>
+
+        
+    <hr class="border-gray-400">
+    
+    <h2 class="text-lg font-semibold">👤 Profile</h2>
+    <div class="bg-blue-600 p-4 rounded-lg shadow text-sm space-y-2">
+        <p><span class="font-semibold">Name:</span> {{ owner.user.get_full_name }}</p>
+        <p><span class="font-semibold">Email:</span> {{ owner.user.email }}</p>
+        <p><span class="font-semibold">Phone:</span> {{ owner.phone }}</p>
+        <p><span class="font-semibold">Mess Name:</span> {{ owner.mess_name }}</p>
+    </div>
+
+        <hr class="border-gray-400">
+
+        <h2 class="text-lg font-semibold">Actions</h2>
+        <button onclick="toggleAddMess()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg shadow text-center w-full">
+            ➕ Add New Mess
+        </button>
+
+         <hr class="border-gray-400">
+
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg shadow w-full">
+                🚪 Logout
+            </button>
+        </form>
+    </aside>
+    
+    
+    <main class="flex-1 p-6">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">
+            Welcome, <span class="text-blue-600">{{ owner.user.username }}</span> 👋
+        </h2>
+
         {% if messages %}
-            <div class="mb-4">
+            <div class="mb-4 space-y-2">
                 {% for message in messages %}
-                    <div class="p-3 rounded mb-2 
-                        {% if message.tags == 'success' %}bg-green-200 text-green-800
-                        {% elif message.tags == 'error' %}bg-red-200 text-red-800
-                        {% else %}bg-gray-200 text-gray-800{% endif %}">
+                    <div class="p-3 rounded-lg shadow
+                        {% if message.tags == 'success' %}bg-green-100 text-green-800
+                        {% elif message.tags == 'error' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
 
-        <!-- Add Mess Form -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-lg font-semibold mb-2">➕ Add New Mess</h3>
-            <form method="POST">
+        
+        <div id="add-mess-section" class="bg-white p-6 rounded-2xl shadow-lg mb-6 hidden">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">➕ Add New Mess</h3>
+            <form method="POST" class="space-y-3">
                 {% csrf_token %}
                 {% for field in mess_form %}
-                    <div class="mb-3">
+                    <div>
                         {{ field.label_tag }} {{ field }}
                         {% if field.errors %}
                             <p class="text-red-500 text-sm">{{ field.errors }}</p>
                         {% endif %}
                     </div>
                 {% endfor %}
-                <button type="submit" name="add_mess" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                <button type="submit" name="add_mess" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow">
                     Add Mess
                 </button>
             </form>
         </div>
 
-        <!-- List of Messes -->
-        <h3 class="text-xl font-semibold mb-4">📋 Your Messes</h3>
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">📋 Your Messes</h3>
         {% if messes %}
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for mess in messes %}
-                    <div class="bg-white p-5 rounded shadow">
-                        <h4 class="text-lg font-bold">{{ mess.name }}</h4>
+                    <div class="bg-white p-5 rounded-2xl shadow hover:shadow-2xl transition relative">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-lg font-bold text-blue-700">{{ mess.name }}</h4>
+                            {% if mess.food_type == 'Veg' %}
+                                <span class="bg-green-200 text-green-800 px-2 py-0.5 rounded-full text-sm font-semibold">Veg</span>
+                            {% else %}
+                                <span class="bg-red-200 text-red-800 px-2 py-0.5 rounded-full text-sm font-semibold">Non-Veg</span>
+                            {% endif %}
+                        </div>
                         <p class="text-gray-600">📍 {{ mess.location }}</p>
-                        <p class="text-gray-600">🍲 {{ mess.food_type }} | 💰 ₹{{ mess.price }}</p>
-                        <p class="text-gray-600 mb-2">{{ mess.description }}</p>
+                        <p class="text-gray-500 mt-1">💰 ₹{{ mess.price }}</p>
+                        <p class="text-gray-600 mt-2 mb-3">{{ mess.description }}</p>
 
-                        <!-- Edit/Delete Mess -->
-                        <form method="POST" class="inline">
-                            {% csrf_token %}
-                            <input type="hidden" name="mess_id" value="{{ mess.id }}">
-                            <button type="submit" name="delete_mess" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-                                Delete
-                            </button>
-                        </form>
-
-                        <!-- Edit Mess (reuse mess_form) -->
-                        <details class="mt-2">
-                            <summary class="cursor-pointer text-blue-600">✏️ Edit Mess</summary>
-                            <form method="POST" class="mt-2">
+                        <div class="flex space-x-2 mb-2">
+                            <form method="POST" class="inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="mess_id" value="{{ mess.id }}">
-                                {% for field in mess_form %}
-                                    <div class="mb-2">
-                                        {{ field.label_tag }} {{ field }}
-                                    </div>
-                                {% endfor %}
-                                <button type="submit" name="edit_mess" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">
-                                    Update
+                                <button type="submit" name="delete_mess" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow">
+                                    Delete
                                 </button>
                             </form>
-                        </details>
 
-                        <!-- Menu Management -->
-                        <h5 class="text-md font-semibold mt-4">🍛 Menu Items</h5>
+                            <details class="inline">
+                                <summary class="cursor-pointer text-blue-600 font-medium hover:underline">✏️ Edit Mess</summary>
+                                <form method="POST" class="mt-2 space-y-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="mess_id" value="{{ mess.id }}">
+                                    {% for field in mess_form %}
+                                        <div>{{ field.label_tag }} {{ field }}</div>
+                                    {% endfor %}
+                                    <button type="submit" name="edit_mess" class="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 shadow">
+                                        Update
+                                    </button>
+                                </form>
+                            </details>
+                        </div>
+
+                        <h5 class="text-md font-semibold mt-3 text-gray-700">🍛 Menu Items</h5>
                         {% if mess.menuitem_set.all %}
-                            <ul class="list-disc list-inside mb-2">
+                            <ul class="list-disc list-inside mb-2 space-y-1">
                                 {% for item in mess.menuitem_set.all %}
-                                    <li class="flex justify-between items-center">
-                                        {{ item.name }} - ₹{{ item.price }}
-                                        <div>
-                                            <!-- Delete Menu -->
+                                    <li class="flex justify-between items-center bg-gray-50 px-3 py-1 rounded-lg hover:bg-gray-100 transition">
+                                        <span>{{ item.name }} - ₹{{ item.price }}</span>
+                                        <div class="flex space-x-2">
                                             <form method="POST" class="inline">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="item_id" value="{{ item.id }}">
@@ -110,18 +152,16 @@
                                                     Delete
                                                 </button>
                                             </form>
-                                            <!-- Edit Menu -->
-                                            <details class="inline ml-2">
-                                                <summary class="cursor-pointer text-blue-600">✏️ Edit</summary>
-                                                <form method="POST" enctype="multipart/form-data" class="mt-2">
+
+                                            <details class="inline">
+                                                <summary class="cursor-pointer text-blue-600 hover:underline">✏️ Edit</summary>
+                                                <form method="POST" enctype="multipart/form-data" class="mt-2 space-y-2">
                                                     {% csrf_token %}
                                                     <input type="hidden" name="item_id" value="{{ item.id }}">
                                                     {% for field in menu_form %}
-                                                        <div class="mb-2">
-                                                            {{ field.label_tag }} {{ field }}
-                                                        </div>
+                                                        <div>{{ field.label_tag }} {{ field }}</div>
                                                     {% endfor %}
-                                                    <button type="submit" name="edit_menu" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">
+                                                    <button type="submit" name="edit_menu" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 shadow">
                                                         Update
                                                     </button>
                                                 </form>
@@ -134,18 +174,15 @@
                             <p class="text-gray-500">No menu items yet.</p>
                         {% endif %}
 
-                        <!-- Add Menu Item -->
                         <details class="mt-2">
-                            <summary class="cursor-pointer text-blue-600">➕ Add Menu Item</summary>
-                            <form method="POST" enctype="multipart/form-data" class="mt-2">
+                            <summary class="cursor-pointer text-blue-600 font-medium hover:underline">➕ Add Menu Item</summary>
+                            <form method="POST" enctype="multipart/form-data" class="mt-2 space-y-2">
                                 {% csrf_token %}
                                 <input type="hidden" name="mess_id" value="{{ mess.id }}">
                                 {% for field in menu_form %}
-                                    <div class="mb-2">
-                                        {{ field.label_tag }} {{ field }}
-                                    </div>
+                                    <div>{{ field.label_tag }} {{ field }}</div>
                                 {% endfor %}
-                                <button type="submit" name="add_menu" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
+                                <button type="submit" name="add_menu" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 shadow">
                                     Add Item
                                 </button>
                             </form>
@@ -156,6 +193,254 @@
         {% else %}
             <p class="text-gray-500">You have not added any mess yet.</p>
         {% endif %}
+    </main>
+</div>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Owner Dashboard - Mess Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function toggleAddMess() {
+            document.getElementById("add-mess-section").classList.toggle("hidden");
+        }
+        function toggleProfile() {
+            document.getElementById("profile-section").classList.toggle("hidden");
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <!-- <aside class="w-64 bg-blue-700 text-white p-6 flex flex-col space-y-4 shadow-lg">
+        <h1 class="text-2xl font-bold mb-6">🍴 Mess Finder</h1>
+
+        <a href="{% url 'home' %}" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg shadow text-center">
+            🏠 Home
+        </a>
+
+        <a href="{% url 'owner_dashboard' %}" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg shadow text-center">
+            📊 Dashboard
+        </a>
+
+        <a href="{% url 'owner_orders' %}" class="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg shadow text-center">
+            📦 My Orders
+        </a>
+
+        <hr class="border-gray-400">
+
+        <h2 class="text-lg font-semibold">Actions</h2>
+      
+        <button onclick="toggleAddMess()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg shadow text-center w-full">
+            ➕ Add New Mess
+        </button>
+
+        <hr class="border-gray-400">
+
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg shadow w-full">
+                🚪 Logout
+            </button>
+        </form>
+    </aside> -->
+
+    <aside class="w-64 bg-gray-900 text-white h-screen flex flex-col shadow-lg">
+    <div class="p-6">
+        <h1 class="text-2xl font-bold mb-8 flex items-center space-x-2">
+            <span>🍴</span>
+            <span>Mess Finder</span>
+        </h1>
+
+        <nav class="space-y-2">
+            <a href="{% url 'home' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+                <span class="mr-3">🏠</span> Home
+            </a>
+
+            <a href="{% url 'owner_dashboard' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+                <span class="mr-3">📊</span> Dashboard
+            </a>
+
+            <a href="{% url 'owner_orders' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+                <span class="mr-3">📦</span> My Orders
+            </a>
+        </nav>
+
+        <hr class="my-4 border-gray-700">
+
+        <h2 class="text-lg font-semibold px-4 mb-2">Actions</h2>
+        <button onclick="toggleAddMess()" class="flex items-center justify-center px-4 py-2 w-full bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+            ➕ Add New Mess
+        </button>
+
+        <hr class="my-4 border-gray-700">
+
+        <form method="POST" action="{% url 'logout' %}" class="px-4">
+            {% csrf_token %}
+            <button type="submit" class="flex items-center justify-center w-full px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition">
+                🚪 Logout
+            </button>
+        </form>
     </div>
+</aside>
+
+    
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">
+            Welcome, <span class="text-blue-600">{{ owner.user.username }}</span> 👋
+        </h2>
+
+        {% if messages %}
+            <div class="mb-4 space-y-2">
+                {% for message in messages %}
+                    <div class="p-3 rounded-lg shadow
+                        {% if message.tags == 'success' %}bg-green-100 text-green-800
+                        {% elif message.tags == 'error' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Profile Section -->
+        <!-- <div id="profile-section" class="bg-white p-6 rounded-2xl shadow-lg mb-6 hidden">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">👤 Owner Profile</h3>
+            <div class="space-y-2 text-gray-700">
+                <p><span class="font-semibold">Name:</span> {{ owner.user.get_full_name }}</p>
+                <p><span class="font-semibold">Email:</span> {{ owner.user.email }}</p>
+                <p><span class="font-semibold">Phone:</span> {{ owner.phone }}</p>
+                <p><span class="font-semibold">Mess Name:</span> {{ owner.mess_name }}</p>
+            </div>
+        </div> -->
+
+        <!-- Add Mess Section -->
+        <div id="add-mess-section" class="bg-white p-6 rounded-2xl shadow-lg mb-6 hidden">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">➕ Add New Mess</h3>
+            <form method="POST" class="space-y-3">
+                {% csrf_token %}
+                {% for field in mess_form %}
+                    <div>
+                        {{ field.label_tag }} {{ field }}
+                        {% if field.errors %}
+                            <p class="text-red-500 text-sm">{{ field.errors }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" name="add_mess" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow">
+                    Add Mess
+                </button>
+            </form>
+        </div>
+
+        <!-- Your Messes -->
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">📋 Your Messes</h3>
+        {% if messes %}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for mess in messes %}
+                    <div class="bg-white p-5 rounded-2xl shadow hover:shadow-2xl transition relative">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-lg font-bold text-blue-700">{{ mess.name }}</h4>
+                            {% if mess.food_type == 'Veg' %}
+                                <span class="bg-green-200 text-green-800 px-2 py-0.5 rounded-full text-sm font-semibold">Veg</span>
+                            {% else %}
+                                <span class="bg-red-200 text-red-800 px-2 py-0.5 rounded-full text-sm font-semibold">Non-Veg</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-gray-600">📍 {{ mess.location }}</p>
+                        <p class="text-gray-500 mt-1">💰 ₹{{ mess.price }}</p>
+                        <p class="text-gray-600 mt-2 mb-3">{{ mess.description }}</p>
+
+                        <div class="flex space-x-2 mb-2">
+                            <form method="POST" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="mess_id" value="{{ mess.id }}">
+                                <button type="submit" name="delete_mess" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 shadow">
+                                    Delete
+                                </button>
+                            </form>
+
+                            <details class="inline">
+                                <summary class="cursor-pointer text-blue-600 font-medium hover:underline">✏️ Edit Mess</summary>
+                                <form method="POST" class="mt-2 space-y-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="mess_id" value="{{ mess.id }}">
+                                    {% for field in mess_form %}
+                                        <div>{{ field.label_tag }} {{ field }}</div>
+                                    {% endfor %}
+                                    <button type="submit" name="edit_mess" class="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 shadow">
+                                        Update
+                                    </button>
+                                </form>
+                            </details>
+                        </div>
+
+                        <h5 class="text-md font-semibold mt-3 text-gray-700">🍛 Menu Items</h5>
+                        {% if mess.menuitem_set.all %}
+                            <ul class="list-disc list-inside mb-2 space-y-1">
+                                {% for item in mess.menuitem_set.all %}
+                                    <li class="flex justify-between items-center bg-gray-50 px-3 py-1 rounded-lg hover:bg-gray-100 transition">
+                                        <span>{{ item.name }} - ₹{{ item.price }}</span>
+                                        <div class="flex space-x-2">
+                                            <form method="POST" class="inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                <button type="submit" name="delete_menu" class="bg-red-400 text-white px-2 py-1 rounded hover:bg-red-500">
+                                                    Delete
+                                                </button>
+                                            </form>
+
+                                            <details class="inline">
+                                                <summary class="cursor-pointer text-blue-600 hover:underline">✏️ Edit</summary>
+                                                <form method="POST" enctype="multipart/form-data" class="mt-2 space-y-2">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                    {% for field in menu_form %}
+                                                        <div>{{ field.label_tag }} {{ field }}</div>
+                                                    {% endfor %}
+                                                    <button type="submit" name="edit_menu" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 shadow">
+                                                        Update
+                                                    </button>
+                                                </form>
+                                            </details>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-gray-500">No menu items yet.</p>
+                        {% endif %}
+
+                        <details class="mt-2">
+                            <summary class="cursor-pointer text-blue-600 font-medium hover:underline">➕ Add Menu Item</summary>
+                            <form method="POST" enctype="multipart/form-data" class="mt-2 space-y-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="mess_id" value="{{ mess.id }}">
+                                {% for field in menu_form %}
+                                    <div>{{ field.label_tag }} {{ field }}</div>
+                                {% endfor %}
+                                <button type="submit" name="add_menu" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 shadow">
+                                    Add Item
+                                </button>
+                            </form>
+                        </details>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500">You have not added any mess yet.</p>
+        {% endif %}
+    </main>
+</div>
+
 </body>
 </html>

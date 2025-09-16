@@ -7,21 +7,25 @@
 </head>
 <body class="bg-gray-50 p-6">
 
-    <h1 class="text-2xl font-bold mb-4">Your Cart</h1>
+    <!-- <h1 class="text-2xl font-bold mb-4">Your Cart</h1>
 
-    {% if items %}
+    {% if cart_items %}
         <table class="min-w-full bg-white rounded shadow">
             <thead>
                 <tr class="bg-gray-100">
                     <th class="py-2 px-4 text-left">Item</th>
                     <th class="py-2 px-4 text-left">Price</th>
+                    <th class="py-2 px-4 text-left">Quantity</th>
+                    <th class="py-2 px-4 text-left">Total</th>
                 </tr>
             </thead>
             <tbody>
-                {% for item in items %}
+                {% for cart_item in cart_items %}
                 <tr class="border-b">
-                    <td class="py-2 px-4">{{ item.name }}</td>
-                    <td class="py-2 px-4">₹{{ item.price }}</td>
+                    <td class="py-2 px-4">{{ cart_item.item.name }}</td>
+                    <td class="py-2 px-4">₹{{ cart_item.item.price }}</td>
+                    <td class="py-2 px-4">{{ cart_item.quantity }}</td>
+                    <td class="py-2 px-4">₹{{ cart_item.get_total_price }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -35,8 +39,47 @@
         </a>
     {% else %}
         <p class="text-gray-600">Your cart is empty.</p>
-    {% endif %}
+    {% endif %} -->
+
+    <h2 class="text-xl font-bold mb-4">Your Cart</h2>
+<table class="min-w-full bg-white border border-gray-300">
+    <thead>
+        <tr>
+            <th class="py-2 px-4 border">Item</th>
+            <th class="py-2 px-4 border">Price</th>
+            <th class="py-2 px-4 border">Quantity</th>
+            <th class="py-2 px-4 border">Total</th>
+            <th class="py-2 px-4 border">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart_items %}
+        <tr>
+            <td class="py-2 px-4 border">{{ item.item.name }}</td>
+            <td class="py-2 px-4 border">₹{{ item.item.price }}</td>
+            <td class="py-2 px-4 border">{{ item.quantity }}</td>
+            <td class="py-2 px-4 border">₹{{ item.get_total_price }}</td>
+            <td class="py-2 px-4 border text-center">
+                <form action="{% url 'delete_cart_item' item.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="py-2 px-4 text-center">Your cart is empty.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p class="mt-4 font-bold">Total: ₹{{ total_price }}</p>
+<a href="{% url 'checkout' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-4 inline-block">
+    Proceed to Checkout
+</a>
 
 </body>
 </html>
-

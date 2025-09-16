@@ -81,32 +81,97 @@ class Cart(models.Model):
 
 
 
+# class Order(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     mess = models.ForeignKey(Mess, on_delete=models.CASCADE)
+#     items = models.ManyToManyField(MenuItem)
+#     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+#     # NEW FIELDS
+#     customer_name = models.CharField(max_length=200, default="Guest User")
+#     phone = models.CharField(max_length=15, null=True, blank=True)  # 📱 added phone
+#     address = models.CharField(max_length=255, null=True, blank=True)
+#     pincode = models.CharField(max_length=10, null=True, blank=True)
+
+#     payment_status = models.CharField(max_length=20, choices=[
+#         ('Pending', 'Pending'),
+#         ('Paid', 'Paid'),
+#         ('Failed', 'Failed'),
+#     ], default='Pending')
+
+#     status = models.CharField(max_length=20, choices=[
+#         ('Pending', 'Pending'),
+#         ('Accepted', 'Accepted'),
+#         ('Rejected', 'Rejected'),
+#         ('Delivered', 'Delivered')
+#     ], default='Pending')
+
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"Order {self.id} - {self.user.username}"
+
+from django.db import models
+from django.contrib.auth.models import User
+
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    mess = models.ForeignKey(Mess, on_delete=models.CASCADE)
-    items = models.ManyToManyField(MenuItem)
+    mess = models.ForeignKey("Mess", on_delete=models.CASCADE)  # Link to the mess where order is placed
+    items = models.ManyToManyField("MenuItem")  # All menu items in the order
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    # NEW FIELDS
+    # Customer Details
     customer_name = models.CharField(max_length=200, default="Guest User")
-    phone = models.CharField(max_length=15, null=True, blank=True)  # 📱 added phone
+    phone = models.CharField(max_length=15, null=True, blank=True)  # 📱 Mobile number
     address = models.CharField(max_length=255, null=True, blank=True)
     pincode = models.CharField(max_length=10, null=True, blank=True)
 
-    payment_status = models.CharField(max_length=20, choices=[
-        ('Pending', 'Pending'),
-        ('Paid', 'Paid'),
-        ('Failed', 'Failed'),
-    ], default='Pending')
+    # Payment Info
+    payment_method = models.CharField(
+        max_length=50,
+        choices=[
+            ('COD', 'Cash on Delivery'),
+            ('Online', 'Online Payment'),
+        ],
+        default='COD'
+    )
+    payment_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('Pending', 'Pending'),
+            ('Paid', 'Paid'),
+            ('Failed', 'Failed'),
+        ],
+        default='Pending'
+    )
 
-    status = models.CharField(max_length=20, choices=[
-        ('Pending', 'Pending'),
-        ('Accepted', 'Accepted'),
-        ('Rejected', 'Rejected'),
-        ('Delivered', 'Delivered')
-    ], default='Pending')
+    # Order Tracking Status
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('Pending', 'Pending'),
+            ('Accepted', 'Accepted'),
+            ('Preparing', 'Preparing'),
+            ('Out for Delivery', 'Out for Delivery'),
+            ('Delivered', 'Delivered'),
+            ('Rejected', 'Rejected'),
+        ],
+        default='Pending'
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
+
+    def get_status_display_color(self):
+        """Return bootstrap/tailwind color based on status for UI."""
+        status_colors = {
+            'Pending': 'yellow',
+            'Accepted': 'blue',
+            'Preparing': 'orange',
+            'Out for Delivery': 'purple',
+            'Delivered': 'green',
+            'Rejected': 'red',
+        }
+        return status_colors.get(self.status, 'gray')

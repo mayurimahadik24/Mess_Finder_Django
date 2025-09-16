@@ -18,21 +18,31 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
-
+from .views import AboutView
+from .views import ContactView
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('about/', AboutView.as_view(), name='about'),
+    path('contact/', ContactView.as_view(), name='contact'),
     path('login/', views.user_login, name='user_login'),
     path('register/', views.register_user_view, name='register'),
     path('register-owner/', views.register_owner_view, name='register_owner'),
     path('dashboard/', views.owner_dashboard_view, name='owner_dashboard'), 
     path('messes/', views.mess_list_view, name='mess_list'),
     path("profile/", views.user_profile_view, name="user_profile"),
+     path("delete-order-history/<int:order_id>/", views.delete_order_history, name="delete_order_history"),
     path("order/<int:mess_id>/<int:item_id>/", views.place_order, name="place_order"),
     path("checkout/", views.checkout, name="checkout"),
     path('cart/', views.cart_view, name='cart'),
     path('add-to-cart/<int:item_id>/', views.add_to_cart, name='add_to_cart'),
-    path("order-success/", views.order_success, name="order_success"),
+    # path("order-success/", views.order_success, name="order_success"),
+    path("owner/orders/", views.owner_orders_view, name="owner_orders"),
+    path('owner/orders/update/<int:order_id>/', views.update_order_status, name='update_order_status'),
+    path("cart/delete/<int:item_id>/", views.delete_cart_item, name="delete_cart_item"),
+    path('order-success/<int:order_id>/', views.order_success, name='order_success'),
+    path('owner/orders/delete/<int:order_id>/', views.delete_order, name='delete_order'),
+
 
 
     #  path('edit-mess/<int:mess_id>/', views.edit_mess, name='edit_mess'),

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Us - Mess Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center sticky top-0 z-50 fade-in">
+        <h1 class="text-2xl font-extrabold text-blue-600">Mess Finder</h1>
+        <ul class="flex space-x-6 text-gray-600 font-medium">
+            <li><a href="{% url 'home' %}" class="text-blue-600 font-semibold underline underline-offset-4">Home</a></li>
+            <li><a href="{% url 'about' %}" class="hover:text-blue-600 hover:underline underline-offset-4 transition duration-300">About Us</a></li>
+            <li><a href="{% url 'contact' %}" class="hover:text-blue-600 hover:underline underline-offset-4 transition duration-300">Contact</a></li>
+            <!-- Login/Register Options in Navbar -->
+            <li><a href="{% url 'login' %}" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition duration-300">Login</a></li>
+            <li><a href="{% url 'register' %}" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition duration-300">User Register</a></li>
+            <li><a href="{% url 'register_owner' %}" class="bg-purple-500 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-600 transition duration-300">Mess Owner Register</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="flex items-center justify-center h-64 bg-cream text-black">
+        <h1 class="text-4xl font-bold">Contact Us</h1>
+    </section>
+
+    <!-- Contact Info Card -->
+    <section class="flex justify-center mt-12 px-4">
+        <div class="bg-white rounded-xl shadow-lg p-10 max-w-sm w-full text-center">
+            <h2 class="text-2xl font-bold mb-6">Connect With Us</h2>
+            <div class="space-y-4 text-gray-700 text-left">
+                <p class="flex items-center"><span class="mr-2">📞</span> +123-456-7890</p>
+                <p class="flex items-center"><span class="mr-2">🌐</span> www.messfinder.com</p>
+                <p class="flex items-center"><span class="mr-2">✉️</span> hello@messfinder.com</p>
+                <p class="flex items-center"><span class="mr-2">📍</span> 123 Anywhere St., Any City</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white shadow-md py-6 text-center text-gray-600 text-sm mt-16">
+        &copy; 2025 Mess Finder. All rights reserved.
+    </footer>
+
+</body>
+</html>

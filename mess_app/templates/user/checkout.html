@@ -15,10 +15,17 @@
             <form method="POST" class="space-y-5">
                 {% csrf_token %}
                 
-                <!-- Name -->
+                <!-- Full Name -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Full Name</label>
                     <input type="text" name="name" required
+                           class="w-full mt-2 p-3 border rounded-lg focus:ring focus:ring-blue-200">
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input type="text" name="phone" required
                            class="w-full mt-2 p-3 border rounded-lg focus:ring focus:ring-blue-200">
                 </div>
 
@@ -47,7 +54,7 @@
                     </select>
                 </div>
 
-                <!-- Submit Button -->
+                <!-- Place Order Button -->
                 <button type="submit" 
                         class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
                     Place Order
@@ -63,16 +70,14 @@
                 <ul class="space-y-3">
                     {% for item in cart_items %}
                         <li class="flex justify-between border-b pb-2">
-                            <span>{{ item.food_item.name }}</span>
-                            <span>₹{{ item.food_item.price }}</span>
+                            <span>{{ item.item.name }} × {{ item.quantity }}</span>
+                            <span>₹{{ item.get_total_price }}</span>
                         </li>
                     {% endfor %}
                 </ul>
                 <div class="flex justify-between mt-6 text-lg font-bold text-gray-900">
                     <span>Total:</span>
-                    <span>
-                        ₹{{ cart_items|map:"food_item.price"|sum }}
-                    </span>
+                    <span>₹{{ total_price }}</span>
                 </div>
             {% else %}
                 <p class="text-gray-600">Your cart is empty.</p>
